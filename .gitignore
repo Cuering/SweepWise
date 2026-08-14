@@ -1,0 +1,8 @@
+﻿server.log
+server.err.log
+*.db
+*.db-wal
+*.db-shm
+node_modules
+dist/
+src/ui-files.js

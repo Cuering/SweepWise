@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SweepWise 残件管家</title>
+<link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>
+        <div class="brand-name">残件管家</div>
+        <div class="brand-sub">SweepWise</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-btn" data-tab="overview" data-i18n="tab.overview">总览</button>
+      <button class="nav-btn" data-tab="leftovers" data-i18n="tab.leftovers">卸载残留</button>
+      <button class="nav-btn" data-tab="caches" data-i18n="tab.caches">缓存清理</button>
+      <button class="nav-btn" data-tab="agents" data-i18n="tab.agents">Agent 工作区</button>
+      <button class="nav-btn" data-tab="trash" data-i18n="tab.trash">隔离区</button>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="btn ghost" id="theme-toggle" data-i18n="theme">切换深色</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1 id="page-title">总览</h1>
+      <div class="topbar-actions">
+        <span class="ver-chip" id="ver-chip">v···</span>
+        <button class="btn" id="btn-update" title="从 GitHub 检查并下载更新">检查更新</button>
+        <button class="btn primary" id="btn-scan-all" data-i18n="scanAll">全量扫描</button>
+        <button class="btn" id="btn-export" data-i18n="export">导出审计报告</button>
+      </div>
+    </header>
+    <div class="content" id="content">
+      <div class="loading" id="loading">正在加载…</div>
+    </div>
+  </main>
+</div>
+<script src="/ui/app.js"></script>
+</body>
+</html>

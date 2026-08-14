@@ -1,0 +1,11 @@
+{
+  "name": "sweepwise",
+  "version": "0.1.0",
+  "description": "残件管家 SweepWise - 已卸载软件残留/缓存/Agent工作区清理原型",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT"
+}
