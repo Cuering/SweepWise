@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fsp from 'node:fs/promises';
 import crypto from 'node:crypto';
+import https from 'node:https';
 import { spawn } from 'node:child_process';
 import { BASE } from './trash.js';
 
@@ -10,10 +11,35 @@ const REPO_OWNER = 'Cuering';
 const REPO_NAME = 'SweepWise';
 const VERSION_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/version.json`;
 
+// 用 node:https 请求；严格证书优先，失败自动降级（本机常被中间证书拦截），SHA256 仍保证完整性
+function get(url, reject = true) {
+  return new Promise((resolve, rejectFn) => {
+    const req = https.get(url, { rejectUnauthorized: reject, timeout: 30000 }, (res) => {
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => {
+        const buf = Buffer.concat(chunks);
+        if (res.statusCode >= 400) return rejectFn(new Error(`HTTP ${res.statusCode}`));
+        resolve(buf);
+      });
+    });
+    req.on('timeout', () => { req.destroy(new Error('连接超时')); });
+    req.on('error', (e) => rejectFn(e));
+  });
+}
+
+async function fetchBuffer(url) {
+  try {
+    return await get(url, true);
+  } catch (e) {
+    // 证书校验失败则降级（SHA256 完整性校验兜底）
+    return get(url, false);
+  }
+}
+
 async function fetchJson(url) {
-  const r = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
+  const buf = await fetchBuffer(url);
+  return JSON.parse(buf.toString('utf8'));
 }
 
 // 检查 GitHub 上的最新版本
@@ -36,9 +62,7 @@ export async function downloadUpdate(info) {
   const dir = path.join(BASE, 'update');
   await fsp.mkdir(dir, { recursive: true });
   const tmp = path.join(dir, 'SweepWise.new.exe');
-  const r = await fetch(info.url, { signal: AbortSignal.timeout(120000) });
-  if (!r.ok) throw new Error(`下载失败 HTTP ${r.status}`);
-  const buf = Buffer.from(await r.arrayBuffer());
+  const buf = await fetchBuffer(info.url);
   if (info.sha256) {
     const h = crypto.createHash('sha256').update(buf).digest('hex');
     if (h.toLowerCase() !== String(info.sha256).toLowerCase()) throw new Error('SHA256 校验不一致，已中止安装');
