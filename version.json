@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
   "url": "https://github.com/Cuering/SweepWise/releases/download/v0.1.0/SweepWise.exe",
-  "sha256": "05EB7CB399379B7285AB6B667468ACB11CA64A7B8FE36539B533EA287B402FF5",
-  "size": 98521088,
+  "sha256": "60DA6EF0EC73A3FD746D2EBA430D6E0A4A49A9E720DA3553AE11BEA72580DE9D",
+  "size": 98521600,
   "note": "首个绿色版：单文件 exe，含内嵌 UI 与自更新（TLS 拦截环境自动降级+SHA256 校验）"
 }

@@ -12,16 +12,19 @@ const REPO_NAME = 'SweepWise';
 const VERSION_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/version.json`;
 
 // 用 node:https 请求；严格证书优先，失败自动降级（本机常被中间证书拦截），SHA256 仍保证完整性
-function get(url, reject = true) {
+function get(url, reject = true, redirects = 5) {
   return new Promise((resolve, rejectFn) => {
-    const req = https.get(url, { rejectUnauthorized: reject, timeout: 30000 }, (res) => {
+    const req = https.get(url, { rejectUnauthorized: reject, timeout: 60000 }, (res) => {
+      // 跟随 302 重定向（GitHub release 下载会跳转到 objects.githubusercontent.com）
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (redirects <= 0) return rejectFn(new Error('重定向次数过多'));
+        res.resume();
+        return get(res.headers.location, reject, redirects - 1).then(resolve, rejectFn);
+      }
+      if (res.statusCode >= 400) return rejectFn(new Error(`HTTP ${res.statusCode}`));
       const chunks = [];
       res.on('data', (c) => chunks.push(c));
-      res.on('end', () => {
-        const buf = Buffer.concat(chunks);
-        if (res.statusCode >= 400) return rejectFn(new Error(`HTTP ${res.statusCode}`));
-        resolve(buf);
-      });
+      res.on('end', () => resolve(Buffer.concat(chunks)));
     });
     req.on('timeout', () => { req.destroy(new Error('连接超时')); });
     req.on('error', (e) => rejectFn(e));
